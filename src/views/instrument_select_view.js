@@ -1,29 +1,30 @@
 const PubSub = require('../helpers/pub_sub.js');
 
-const SelectView = function(element){
-  this.element = element;
+const SelectView = function(){
+
 };
 
-SelectView.prototype.bindEvents = function(){
-  PubSub.subscribe('Instruments:all-instruments-ready', (event) => {
-    const instruments = event.detail;
-    this.populate(instruments);
-  });
+SelectView.prototype.bindEvents = function () {
+   PubSub.subscribe('InstrumentFamilies:data-ready', (event) => {
+        const instrumentFamilies = event.detail;
+        this.populate(instrumentFamilies);
 
-  this.element.addEventListener('change', (event) => {
-    const selectedIndex = event.target.value;
-    PubSub.publish('SelectView:change', selectedIndex);
-  });
-};
+        const instrumentFamiliesDropdown = document.querySelector('#instrument-families');
+        instrumentFamiliesDropdown.addEventListener('change', (event) => {
+            const selectedFamilyIndex = event.target.value;
+            PubSub.publish('SelectView:instrument-family-changed', selectedFamilyIndex);
+        })
+   })
+}
 
-SelectView.prototype.populate = function(instrument){
-  instrument.forEach((instrument, index) => {
-
-    const option = document.createElement('option');
-    option.textContent = instrument.name;
-    option.value = index;
-    this.element.appendChild(option);
-  });
+SelectView.prototype.populate = function (instrumentFamilies) {
+    const instrumentFamiliesDropdown = document.querySelector('#instrument-families');
+    instrumentFamilies.forEach((instrumentFamily, index) => {
+        const newOption = document.createElement('option');
+        newOption.textContent = instrumentFamily.name;
+        newOption.value = index;
+        instrumentFamiliesDropdown.appendChild(newOption);
+    })
 }
 
 module.exports = SelectView;
